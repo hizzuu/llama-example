@@ -26,7 +26,11 @@ docker build -t llama-cpu-q4km .
 ### 3. コンテナの実行
 
 ```bash
+# Llama-3
 docker run -p 8080:8080 -v $(pwd)/models:/app/models llama-cpu-q4km /app/llama.cpp/build/bin/llama-server -m /app/models/Llama-3-ELYZA-JP-8B-q4_k_m.gguf -c 2048 --host 0.0.0.0 --port 8080
+
+# Gemma
+docker run -p 8080:8080 -v $(pwd)/models:/app/models llama-cpu-q4km /app/llama.cpp/build/bin/llama-server -m /app/models/gemma-2-2b-jpn-it-Q4_K_M.gguf -c 2048 --host 0.0.0.0 --port 8080 --repeat-penalty 1.1
 ```
 
 ## 使用方法
