@@ -21,9 +21,15 @@ RUN git clone https://github.com/ggerganov/llama.cpp && \
     cmake .. && \
     cmake --build . --config Release
 
+# モデルをダウンロードするディレクトリを作成
+RUN mkdir -p /app/models
+
+# ローカルのモデルファイルをDockerイメージにコピー
+COPY models/* /app/models/
+
 # 簡単なAPIサーバーとしてllama.cppのサーバー機能を使用
 WORKDIR /app/llama.cpp/build/bin
 EXPOSE 8080
 
-# サーバーモードで起動（モデルはマウントまたはダウンロード済みと仮定）
-CMD ["./server", "-m", "/app/models/Llama-3-ELYZA-JP-8B-q4_k_m.gguf", "-c", "2048", "--host", "0.0.0.0", "--port", "8080"]
+# サーバーモードで起動
+CMD ["./llama-server", "-m", "/app/models/gemma-2-2b-jpn-it-Q4_K_M.gguf", "-c", "2048", "--host", "0.0.0.0", "--port", "8080", "--repeat-penalty", "1.1"]

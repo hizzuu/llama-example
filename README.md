@@ -14,7 +14,6 @@
 
 ```bash
 mkdir -p models
-wget -O models/Llama-3-ELYZA-JP-8B-q4_k_m.gguf https://huggingface.co/elyza/Llama-3-ELYZA-JP-8B-GGUF/resolve/main/Llama-3-ELYZA-JP-8B-q4_k_m.gguf
 ```
 
 ### 2. Dockerイメージのビルド
@@ -26,10 +25,6 @@ docker build -t llama-cpu-q4km .
 ### 3. コンテナの実行
 
 ```bash
-# Llama-3
-docker run -p 8080:8080 -v $(pwd)/models:/app/models llama-cpu-q4km /app/llama.cpp/build/bin/llama-server -m /app/models/Llama-3-ELYZA-JP-8B-q4_k_m.gguf -c 2048 --host 0.0.0.0 --port 8080
-
-# Gemma
 docker run -p 8080:8080 -v $(pwd)/models:/app/models llama-cpu-q4km /app/llama.cpp/build/bin/llama-server -m /app/models/gemma-2-2b-jpn-it-Q4_K_M.gguf -c 2048 --host 0.0.0.0 --port 8080 --repeat-penalty 1.1
 ```
 
@@ -43,22 +38,26 @@ docker run -p 8080:8080 -v $(pwd)/models:/app/models llama-cpu-q4km /app/llama.c
 curl -X POST http://localhost:8080/completion \
   -H "Content-Type: application/json" \
   -d '{
-    "prompt": "東京の観光スポットを5つ教えてください",
+    "prompt": "<start_of_turn>user 東京の観光スポットを教えてください<end_of_turn>\n<start_of_turn>model",
     "n_predict": 512,
+    "penalty": 1.1,
     "temperature": 0.7,
-    "stop": ["\n\n"]
+    "stop": ["<end_of_turn>"]
   }'
 ```
 
-### チャットフォーマット（Llama-3 ELYZA-JP用）
+### チャットフォーマット
 
 ```bash
 curl -X POST http://localhost:8080/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "Llama-3-ELYZA-JP-8B-q4_k_m",
-    "messages": [
-      {"role": "user", "content": "東京の観光スポットを5つ教えてください"}
-    ]
+    "model": "gemma-2-2b-jpn-it",                                                                         
+    "messages": [    
+      {"role": "user", "content": "こんにちは、自己紹介をしてください"}
+    ],     
+    "penalty": 1.1,                  
+    "temperature": 0.7,
+    "max_tokens": 512
   }'
 ```
